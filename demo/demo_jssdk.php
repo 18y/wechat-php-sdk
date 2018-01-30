@@ -1,4 +1,5 @@
 <?php 
+    // 配置信息
     define("APPID","wx891964efedb07584");
     define("APPSECRET","1d4fb01eb8aee41eb0eb4f005cca721b");
     // 缓存目录
@@ -7,19 +8,27 @@
     use Gaoming13\WechatPhpSdk\Api;
     use Gaoming13\WechatPhpSdk\Utils\FileCache;
     // 文件缓存
-    $cache =  new FileCache;
+    $cache =  new FileCache(['path'=>CACHE_PATH]);
     // api模块
     $api = new Api(
         array(
             'appId' => APPID,
             'appSecret' => APPSECRET,
             'get_access_token' => function() use ($cache) {
-                // 用户需要自己实现access_token的返回
+                // 获取缓存中的 access_token
                 return $cache->get('access_token');
             },
             'save_access_token' => function($token) use ($cache) {
-                // 用户需要自己实现access_token的保存
+                // 保存 access_token 
                 $cache->set('access_token', $token, 7000);
+            },
+            'get_jsapi_ticket' => function() use ($cache) {
+                // 获取缓存中的 jsapi_ticket
+                return $cache->get('jsapi_ticket');
+            },
+            'save_jsapi_ticket' => function($ticket) use($cache) {
+                // 保存 jsapi_ticket
+                $cache->set('jsapi_ticket', $ticket, 7000);
             }
         )
     );
@@ -32,7 +41,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>demo-jssdk-扫码</title>
+    <title>demo_jssdk-扫码</title>
 </head>
 <body>
 
@@ -42,7 +51,7 @@
 <script>
     
 wx.config({
-    debug: false, // 开启调试模式
+    debug: true, // 开启调试模式
     appId: '<?php echo $jsapi_config['appId']; ?>', // 必填，公众号的唯一标识
     timestamp: '<?php echo $jsapi_config['timestamp']; ?>', // 必填，生成签名的时间戳
     nonceStr: '<?php echo $jsapi_config['nonceStr']; ?>', // 必填，生成签名的随机串
